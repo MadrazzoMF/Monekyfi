@@ -79,6 +79,19 @@ let msg = '', msgT = 0;
 let audioCtx = null, lastBeatIndex = -1;
 let keysDown = {};
 
+// toque (celular/tablet): analógico virtual + arrasto para mirar + botões
+let touchMode = false;
+let stick = null;          // { id, ox, oy, x, y }
+let look = null;           // { id, px }
+let firing = false;
+let btnHeld = { fase: false, eco: false, arma: false };
+const TBTN = {
+  fire: { x: VIEW_W - 92,  y: VIEW_H - 108, r: 54, label: 'FOGO' },
+  fase: { x: VIEW_W - 196, y: VIEW_H - 66,  r: 34, label: 'FASE' },
+  eco:  { x: VIEW_W - 196, y: VIEW_H - 152, r: 34, label: 'ECO'  },
+  arma: { x: VIEW_W - 92,  y: VIEW_H - 212, r: 30, label: 'ARMA' },
+};
+
 const WEAPONS = [
   { name: 'PISTOLA',  dmg: 14, ammo: 'balas',     cost: 1, rate: 260, spread: 0.01, pellets: 1, kind: 'hit'  },
   { name: 'ESCOPETA', dmg: 9,  ammo: 'cartuchos', cost: 1, rate: 720, spread: 0.11, pellets: 8, kind: 'hit'  },
@@ -463,12 +476,19 @@ function update(dt) {
   }
 
   // --- movimento
-  const run = keysDown[16] ? 1.7 : 1;
+  let fwd = keysDown[87] ? 1 : keysDown[83] ? -1 : 0;
+  let str = keysDown[68] ? 1 : keysDown[65] ? -1 : 0;
+  let sprint = !!keysDown[16];
+  if (stick) {                                   // analógico virtual
+    const dx = (stick.x - stick.ox) / 56, dy = (stick.y - stick.oy) / 56;
+    const m = Math.hypot(dx, dy);
+    if (m > 0.18) { fwd += clamp(-dy, -1, 1); str += clamp(dx, -1, 1); }
+    if (m > 0.92) sprint = true;                 // empurrar o analógico até o fim = correr
+  }
+  const run = sprint ? 1.7 : 1;
   const spd = (p.phased ? 2.6 : 3.4) * run * dt;
   const rot = 2.4 * dt;
   let mx = 0, my = 0;
-  const fwd = keysDown[87] ? 1 : keysDown[83] ? -1 : 0;
-  const str = keysDown[68] ? 1 : keysDown[65] ? -1 : 0;
   if (keysDown[37]) p.dir -= rot;
   if (keysDown[39]) p.dir += rot;
   if (keysDown[38]) { mx += Math.cos(p.dir); my += Math.sin(p.dir); }
@@ -485,7 +505,7 @@ function update(dt) {
     p.hp -= 12 * dt; flashT = now(); flashCol = [40, 220, 160];
   }
 
-  if (mouseIsPressed || keysDown[17] || keysDown[32]) playerShoot();
+  if (firing || (!touchMode && (mouseIsPressed || keysDown[17] || keysDown[32]))) playerShoot();
   pushRecord();
   p.didShoot = false;
   updateEchoes(dt);
@@ -827,6 +847,7 @@ function draw() {
     render();
     drawWeapon();
     hud();
+    if (touchMode) drawTouchUI();
   } else if (gameState === 'title') {
     render();
     overlayScreen('PULSO DO ABISMO', [
@@ -839,27 +860,31 @@ function draw() {
       'COLHEITA: absorva almas para ÉTER e para subir o FRENESI',
       'PACTO DE SANGUE: sem munição a arma dispara consumindo vida',
       '',
-      'CLIQUE PARA COMEÇAR',
+      'NO CELULAR: analógico à esquerda, arraste à direita para mirar, botões à direita',
+      'CLIQUE OU TOQUE PARA COMEÇAR',
     ], [255, 90, 60]);
   } else if (gameState === 'dead') {
     render(); hud();
-    overlayScreen('VOCE FOI CONSUMIDO', ['Andar ' + floorNum + ' · ' + kills + ' abates', 'Pressione R para renascer'], [220, 40, 40]);
+    overlayScreen('VOCE FOI CONSUMIDO', ['Andar ' + floorNum + ' · ' + kills + ' abates',
+      touchMode ? 'Toque na tela para renascer' : 'Pressione R para renascer'], [220, 40, 40]);
   }
 }
 
 // ----------------------------------------------------------------------------- input
+function toggleFase() {
+  if (!player.phased) {
+    if (player.eter > 12) { player.phased = true; say('FASE'); blip(300, 0.2, 'sine', 0.05); }
+    else say('ETER INSUFICIENTE');
+  } else if (blocks(tileAt(player.x, player.y), false)) say('NAO PODE MATERIALIZAR AQUI');
+  else { player.phased = false; say('MATERIALIZADO'); }
+}
+
 function keyPressed() {
   keysDown[keyCode] = true;
   if (key === '1') player.weapon = 0;
   if (key === '2') player.weapon = 1;
   if (key === '3') player.weapon = 2;
-  if (key === 'f' || key === 'F') {
-    if (!player.phased && player.eter > 12) { player.phased = true; say('FASE'); blip(300, 0.2, 'sine', 0.05); }
-    else if (player.phased) {
-      if (blocks(tileAt(player.x, player.y), false)) say('NAO PODE MATERIALIZAR AQUI');
-      else { player.phased = false; say('MATERIALIZADO'); }
-    }
-  }
+  if (key === 'f' || key === 'F') toggleFase();
   if (key === 'q' || key === 'Q') releaseEcho();
   if (key === 'r' || key === 'R') { gameState = 'play'; resetLevel(true); }
   if (keyCode === 32 || keyCode === 9) return false; // não rolar a página
@@ -878,3 +903,66 @@ function mouseMoved() {
   if (gameState === 'play' && document.pointerLockElement) player.dir += movedX * 0.0028;
 }
 function mouseDragged() { mouseMoved(); }
+
+// --------------------------------------------------------------------------- toque
+function inBtn(b, x, y) { return Math.hypot(x - b.x, y - b.y) <= b.r; }
+
+function syncTouches() {
+  touchMode = true;
+  const list = touches || [];
+  const ids = new Set(list.map(t => t.id));
+  if (stick && !ids.has(stick.id)) stick = null;
+  if (look && !ids.has(look.id)) look = null;
+
+  const pressed = { fire: false, fase: false, eco: false, arma: false };
+  for (const t of list) {
+    if (stick && t.id === stick.id) { stick.x = t.x; stick.y = t.y; continue; }
+    if (look && t.id === look.id) { player.dir += (t.x - look.px) * 0.006; look.px = t.x; continue; }
+    let onBtn = false;
+    for (const k in TBTN) if (inBtn(TBTN[k], t.x, t.y)) { pressed[k] = true; onBtn = true; break; }
+    if (onBtn) continue;
+    if (t.x < VIEW_W * 0.42) stick = { id: t.id, ox: t.x, oy: t.y, x: t.x, y: t.y };
+    else look = { id: t.id, px: t.x };
+  }
+
+  firing = pressed.fire;
+  if (pressed.fase && !btnHeld.fase) toggleFase();
+  if (pressed.eco && !btnHeld.eco) releaseEcho();
+  if (pressed.arma && !btnHeld.arma) player.weapon = (player.weapon + 1) % WEAPONS.length;
+  btnHeld = { fase: pressed.fase, eco: pressed.eco, arma: pressed.arma };
+}
+
+// o p5 encaminha eventos de mouse para os handlers de toque: só reagimos a toque real
+function isTouchEvt(e) {
+  return !!(e && (e.touches || String(e.type || '').indexOf('touch') === 0 || e.pointerType === 'touch'));
+}
+
+function touchStarted(e) {
+  if (!isTouchEvt(e)) return;     // mouse: deixa mousePressed cuidar
+  initAudio();
+  touchMode = true;
+  if (gameState === 'title') { gameState = 'play'; return false; }
+  if (gameState === 'dead') { gameState = 'play'; resetLevel(true); return false; }
+  syncTouches();
+  return false;                   // impede rolagem/zoom da página
+}
+function touchMoved(e) { if (!isTouchEvt(e)) return; syncTouches(); return false; }
+function touchEnded(e) { if (!isTouchEvt(e)) return; syncTouches(); return false; }
+
+function drawTouchUI() {
+  push(); noStroke();
+  for (const k in TBTN) {
+    const b = TBTN[k];
+    const hot = (k === 'fire' && firing) || btnHeld[k];
+    fill(hot ? 200 : 120, hot ? 90 : 120, hot ? 60 : 140, hot ? 130 : 60);
+    ellipse(b.x, b.y, b.r * 2, b.r * 2);
+    fill(255, 235, 210, 210); textAlign(CENTER, CENTER); textSize(b.r > 40 ? 15 : 11);
+    text(k === 'arma' ? WEAPONS[player.weapon].name.slice(0, 4) : b.label, b.x, b.y);
+  }
+  if (stick) {
+    fill(255, 255, 255, 35); ellipse(stick.ox, stick.oy, 112, 112);
+    const dx = clamp(stick.x - stick.ox, -56, 56), dy = clamp(stick.y - stick.oy, -56, 56);
+    fill(255, 255, 255, 110); ellipse(stick.ox + dx, stick.oy + dy, 46, 46);
+  }
+  pop();
+}

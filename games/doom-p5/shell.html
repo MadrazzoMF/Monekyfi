@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
+<title>Pulso do Abismo</title>
+<meta name="description" content="FPS de raycasting em p5.js — funciona offline, em qualquer dispositivo." />
+<meta name="theme-color" content="#07070c" />
+<meta name="mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<meta name="apple-mobile-web-app-title" content="Abismo" />
+<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 180'%3E%3Crect width='180' height='180' fill='%2307070c'/%3E%3Ccircle cx='90' cy='96' r='46' fill='%23b4402c'/%3E%3Cpath d='M44 62 L68 30 L80 62 Z M136 62 L112 30 L100 62 Z' fill='%23b4402c'/%3E%3Ccircle cx='74' cy='90' r='9' fill='%232fbf9a'/%3E%3Ccircle cx='106' cy='90' r='9' fill='%232fbf9a'/%3E%3C/svg%3E" />
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' fill='%2307070c'/%3E%3Ccircle cx='32' cy='36' r='17' fill='%23b4402c'/%3E%3Ccircle cx='26' cy='33' r='4' fill='%232fbf9a'/%3E%3Ccircle cx='38' cy='33' r='4' fill='%232fbf9a'/%3E%3C/svg%3E" />
+<style>
+  /* Tela de gabinete: um único tema, escuro por decisão. */
+  :root {
+    --void: #07070c; --panel: #0e0e16; --ember: #b4402c;
+    --ether: #2fbf9a; --bone: #e7e2d6; --ash: #78727f;
+    --mono: ui-monospace, "SF Mono", SFMono-Regular, Menlo, Consolas, monospace;
+  }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body { height: 100%; }
+  body {
+    margin: 0;
+    background: radial-gradient(120% 80% at 50% -10%, #17111a 0%, var(--void) 60%), var(--void);
+    color: var(--bone); font-family: var(--mono);
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    gap: 16px; padding: max(12px, env(safe-area-inset-top)) 12px max(12px, env(safe-area-inset-bottom));
+    overscroll-behavior: none;
+  }
+  header { text-align: center; display: flex; flex-direction: column; gap: 6px; }
+  h1 {
+    margin: 0; font-size: clamp(18px, 4vw, 34px); font-weight: 700;
+    letter-spacing: 0.32em; text-indent: 0.32em; color: var(--ember);
+    text-shadow: 0 0 22px rgba(180, 64, 44, 0.45); text-wrap: balance;
+  }
+  .sub { margin: 0; font-size: 11px; letter-spacing: 0.16em; color: var(--ash); text-transform: uppercase; }
+  .stage { position: relative; width: min(960px, 100%); line-height: 0; }
+  .stage::after {
+    content: ""; position: absolute; inset: 0; pointer-events: none;
+    background: repeating-linear-gradient(to bottom, rgba(0,0,0,0.22) 0 1px, transparent 1px 3px);
+    mix-blend-mode: multiply;
+  }
+  canvas {
+    display: block; width: 100% !important; height: auto !important;
+    image-rendering: pixelated; touch-action: none;
+    border: 1px solid #241c26; box-shadow: 0 0 0 1px #050508, 0 24px 70px rgba(0,0,0,0.75);
+    cursor: crosshair;
+  }
+  .legend { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; width: min(960px, 100%); }
+  .chip {
+    display: flex; align-items: center; gap: 7px; background: var(--panel);
+    border: 1px solid #1e1e2b; padding: 6px 10px; font-size: 11px; color: var(--ash);
+  }
+  kbd {
+    font: inherit; font-size: 10.5px; color: var(--bone); background: #1a1a26;
+    border: 1px solid #2b2b3b; border-bottom-width: 2px; padding: 2px 6px;
+  }
+  .chip.cold kbd { color: var(--ether); border-color: #17453a; background: #0d2320; }
+  button {
+    font: inherit; font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase;
+    color: var(--bone); background: var(--panel); border: 1px solid #2b2b3b;
+    padding: 9px 16px; cursor: pointer;
+  }
+  button:hover { border-color: var(--ember); color: #ffd8c8; }
+  button:focus-visible { outline: 2px solid var(--ether); outline-offset: 2px; }
+  footer { font-size: 10.5px; color: #4b4754; letter-spacing: 0.08em; text-align: center; }
+  footer b { color: var(--ether); font-weight: 500; }
+  /* Em telas de toque a HUD já vive no canvas: o teclado vira ruído. */
+  @media (pointer: coarse), (max-width: 720px) { .legend { display: none; } }
+  @media (max-height: 460px) { header, footer { display: none; } body { gap: 8px; padding: 4px; } }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>PULSO DO ABISMO</h1>
+  <p class="sub">clique ou toque na tela para começar</p>
+</header>
+
+<div class="stage" id="game"></div>
+
+<div class="legend">
+  <span class="chip"><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> mover</span>
+  <span class="chip"><kbd>mouse</kbd> mirar</span>
+  <span class="chip"><kbd>clique</kbd> atirar</span>
+  <span class="chip"><kbd>1</kbd><kbd>2</kbd><kbd>3</kbd> armas</span>
+  <span class="chip"><kbd>shift</kbd> correr</span>
+  <span class="chip cold"><kbd>F</kbd> fase</span>
+  <span class="chip cold"><kbd>Q</kbd> eco temporal</span>
+  <span class="chip"><kbd>R</kbd> reiniciar</span>
+</div>
+
+<button id="fs" type="button">Tela cheia</button>
+
+<footer>
+  atire dentro da janela dourada do metrônomo &mdash; <b>dano x2 e munição devolvida</b>
+</footer>
+
+<script>
+document.getElementById('fs').addEventListener('click', function () {
+  var el = document.documentElement;
+  if (document.fullscreenElement) { document.exitFullscreen(); return; }
+  var req = el.requestFullscreen || el.webkitRequestFullscreen;
+  if (req) req.call(el);
+  if (screen.orientation && screen.orientation.lock) {
+    screen.orientation.lock('landscape').catch(function () {});
+  }
+});
+</script>
+
+<script>
+/*__P5__*/
+</script>
+<script>
+/*__SKETCH__*/
+</script>
+</body>
+</html>

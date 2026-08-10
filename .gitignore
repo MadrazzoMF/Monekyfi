@@ -8,3 +8,6 @@ npm-debug.*
 *.log
 .env
 .env.local
+
+# build intermediário do jogo
+games/doom-p5/node_modules/

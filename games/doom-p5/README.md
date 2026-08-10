@@ -3,18 +3,37 @@
 FPS de **raycasting** no estilo Doom, escrito do zero em **p5.js**. Sem assets externos:
 texturas, sprites, mapa e som são gerados por código.
 
-## Como rodar
+## Jogar em qualquer dispositivo (arquivo único)
+
+`dist/pulso-do-abismo.html` é **um arquivo só, ~1 MB, com a p5.js embutida**. Baixe e
+abra no navegador — funciona offline, sem instalar nada, no Windows, macOS, Linux,
+Android e iOS. Não precisa de servidor.
+
+Para deixar com cara de app: abra o arquivo, toque em **Tela cheia**. Se você servir o
+arquivo por HTTPS (GitHub Pages, Netlify, Drive etc.), dá para usar
+"Adicionar à tela de início" no celular e ele abre em tela cheia com ícone próprio.
+
+### Regerar o arquivo único
 
 ```bash
 cd games/doom-p5
-python3 -m http.server 8080
-# abra http://localhost:8080
+node build.js        # junta shell.html + vendor/p5.min.js + sketch.js -> dist/
 ```
 
-(Também funciona abrindo `index.html` direto no navegador; o servidor local só evita
-restrições de arquivo local em alguns navegadores.)
+## Desenvolvimento
+
+```bash
+cd games/doom-p5
+python3 -m http.server 8080   # http://localhost:8080 usa index.html (p5 via CDN)
+```
 
 ## Controles
+
+No **celular/tablet**, a interface aparece sozinha no primeiro toque: analógico virtual
+na metade esquerda, arrastar na metade direita para mirar, e os botões **FOGO**, **FASE**,
+**ECO** e troca de arma à direita. Empurrar o analógico até o fim = correr.
+
+No **computador**:
 
 | Tecla | Ação |
 |---|---|
