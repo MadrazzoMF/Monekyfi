@@ -316,7 +316,7 @@ function resetLevel(full) {
 // ----------------------------------------------------------------------------- setup
 function setup() {
   const c = createCanvas(VIEW_W, VIEW_H);
-  c.parent('game');
+  if (document.getElementById('game')) c.parent('game');  // no editor p5.js não existe
   pixelDensity(1);
   noSmooth();
   buf = createImage(RW, RH);
@@ -902,7 +902,11 @@ function mousePressed() {
 function mouseMoved() {
   if (gameState === 'play' && document.pointerLockElement) player.dir += movedX * 0.0028;
 }
-function mouseDragged() { mouseMoved(); }
+// sem pointer lock (editor p5.js, iframes): arrastar com o botão pressionado gira
+function mouseDragged() {
+  if (gameState !== 'play') return;
+  player.dir += (document.pointerLockElement ? movedX : mouseX - pmouseX) * 0.0028;
+}
 
 // --------------------------------------------------------------------------- toque
 function inBtn(b, x, y) { return Math.hypot(x - b.x, y - b.y) <= b.r; }

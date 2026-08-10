@@ -20,6 +20,18 @@ cd games/doom-p5
 node build.js        # junta shell.html + vendor/p5.min.js + sketch.js -> dist/
 ```
 
+## Rodar no editor p5.js (editor.p5js.org)
+
+`sketch.js` é autossuficiente: crie um sketch novo em https://editor.p5js.org, apague o
+conteúdo do `sketch.js` de lá, cole este arquivo inteiro e aperte ▶. Não precisa mexer no
+`index.html` do editor nem adicionar bibliotecas — só a p5.js, que já vem carregada.
+
+Duas diferenças dentro do editor:
+
+- o preview é estreito; use o botão de tela cheia do preview para ver os 960x600 inteiros;
+- o editor roda o sketch num iframe sem pointer lock, então a mira funciona
+  **arrastando com o botão do mouse pressionado** (as setas ← → também giram).
+
 ## Desenvolvimento
 
 ```bash
