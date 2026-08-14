@@ -17,6 +17,7 @@ Net.Events = {
 	"Damage", -- número de dano flutuante
 	"MoveResult", -- confirmação de golpe: inicia o cooldown no HUD
 	"QuestOffer", -- abre o quadro de missões de um NPC
+	"PlayVfx", -- pedido de efeito visual (o cliente é quem cria as parts)
 
 	-- cliente -> servidor
 	"M1",

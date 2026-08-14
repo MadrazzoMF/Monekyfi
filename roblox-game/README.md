@@ -23,6 +23,13 @@ interface — então você consegue entrar e jogar sem modelar nada no Studio.
 - Cooldowns visíveis na barra de golpes, números de dano flutuantes
 - **Toda validação no servidor**: dano, alcance, cooldown e alvo
 
+**Efeitos visuais**
+- Sistema de VFX por elemento: fogo sobe e deixa fumaça, gelo estilhaça em pedaços com física, areia arrasta e assenta em poeira, raio pisca em ramificações, luz abre em onda limpa
+- Camadas de partícula, ondas de choque no chão, estilhaços, raios, flashes de luz
+- Screen shake com queda por distância e punch de FOV nos golpes pesados
+- Flash no corpo atingido (`Highlight`), rastro nos projéteis, aura nas frutas do mapa
+- Criados **no cliente**, com corte por distância e teto de efeitos simultâneos
+
 **PVE**
 - 5 tipos de inimigo (nível 5 a 100, incluindo um boss) com IA de aggro, perseguição, ataque e leash
 - Respawn automático, barra de vida por inimigo
@@ -130,7 +137,8 @@ ReplicatedStorage
     │   ├── FruitConfig       (ModuleScript)
     │   ├── NpcConfig         (ModuleScript)
     │   ├── QuestConfig       (ModuleScript)
-    │   └── ZoneConfig        (ModuleScript)
+    │   ├── ZoneConfig        (ModuleScript)
+    │   └── VfxConfig         (ModuleScript)
     └── Util                  (Folder)
         ├── Signal            (ModuleScript)
         ├── DamageMath        (ModuleScript)
@@ -147,7 +155,8 @@ ServerScriptService
     │   ├── QuestService      (ModuleScript)
     │   ├── FruitService      (ModuleScript)
     │   ├── ShopService       (ModuleScript)
-    │   └── TravelService     (ModuleScript)
+    │   ├── TravelService     (ModuleScript)
+    │   └── VfxService        (ModuleScript)
     └── World                 (Folder)
         ├── MapBuilder        (ModuleScript)
         └── RigBuilder        (ModuleScript)
@@ -157,13 +166,18 @@ StarterPlayer
     └── Game                  (LocalScript)   ← src/client/init.client.lua
         ├── Ui                (ModuleScript)
         ├── ClientState       (ModuleScript)
+        ├── Vfx               (Folder)
+        │   ├── Primitives    (ModuleScript)
+        │   ├── Effects       (ModuleScript)
+        │   └── CameraShake   (ModuleScript)
         └── Controllers       (Folder)
             ├── HudController     (ModuleScript)
             ├── CombatController  (ModuleScript)
             ├── MenuController    (ModuleScript)
             ├── QuestController   (ModuleScript)
             ├── NotifyController  (ModuleScript)
-            └── DamageController  (ModuleScript)
+            ├── DamageController  (ModuleScript)
+            └── VfxController    (ModuleScript)
 ```
 
 Regra geral: arquivo `X.lua` → ModuleScript chamado `X`. Os dois `init.*` viram
@@ -242,11 +256,44 @@ mágico embutido.
 | Inimigos: vida, dano, XP, Beli, respawn, aggro | `NpcConfig.lua` |
 | Missões: alvo, quantidade, recompensa | `QuestConfig.lua` |
 | Ilhas: posição, tamanho, spawns, zona segura, NPCs de missão | `ZoneConfig.lua` |
+| Visual dos efeitos: partículas, cores, tremor, orçamento | `VfxConfig.lua` |
 
 Adicionar uma fruta nova, por exemplo, é só acrescentar uma entrada em
-`FruitConfig.Fruits` com três golpes e colocar o id em `FruitConfig.Order`. O
-sorteio de spawn, a UI, os cooldowns e o dano passam a funcionar sem nenhuma
-outra mudança.
+`FruitConfig.Fruits` com três golpes, um `element` e o id em `FruitConfig.Order`.
+O sorteio de spawn, a UI, os cooldowns, o dano e os efeitos visuais passam a
+funcionar sem nenhuma outra mudança.
+
+---
+
+## Sobre os efeitos visuais
+
+O visual de cada elemento está em `src/shared/Config/VfxConfig.lua`, como dados.
+A divisão é proposital:
+
+- O **elemento** (`Fire`, `Ice`, `Sand`, `Lightning`, `Light`, `Physical`,
+  `Steel`, `Gunpowder`) define movimento, textura e curvas de cor das partículas
+- A **cor da fruta** tinge a geometria (núcleo, onda, raios, projétil)
+
+Ou seja: duas frutas de fogo com cores diferentes continuam se movendo como
+fogo. Uma fruta nova ganha identidade visual completa só escolhendo `color` e
+`element`.
+
+**Ajustar um efeito** é mexer em `VfxConfig.Elements[<elemento>]`. Os campos que
+mais mudam a sensação, em ordem: `light.brightness`, `core.growth`,
+`layers[].count`, `layers[].speed`, e o tremor em `VfxConfig.Shake`.
+
+**Trocar por texturas próprias** (o maior salto de qualidade disponível): suba
+as imagens no Roblox e troque os valores em `VfxConfig.Textures` por
+`"rbxassetid://SEU_ID"`. É o único ponto que precisa mudar. Hoje o sistema usa a
+textura padrão do `ParticleEmitter` e duas que acompanham o cliente — funciona e
+é legível, mas partículas com sprite próprio (fumaça volumétrica, folhas de
+explosão) são o que separa isto do visual de um jogo grande.
+
+**Custo.** Os efeitos são criados no cliente; o servidor só manda um pedido, e
+apenas para quem está perto o suficiente para ver. O cliente ainda corta por
+distância (`CullDistance`), degrada para versão leve (`ReducedDistance`) e tem
+teto de efeitos simultâneos (`MaxConcurrent`) — nessa ordem. Se o FPS cair numa
+briga grande, esses três números são o lugar de mexer.
 
 ---
 
@@ -300,11 +347,11 @@ Ordenado por quanto muda a sensação do jogo:
 1. **Animações.** Os NPCs deslizam em vez de andar, e os golpes não têm pose. É a
    diferença mais visível entre isto e um jogo publicado. Precisa de Animations
    carregadas por asset id — é o único ponto que exige trabalho no Studio.
-2. **Som.** Nenhum efeito sonoro ainda.
-3. **Barcos** de verdade em vez dos cais de teleporte.
-4. **Efeitos visuais no cliente.** Hoje os efeitos são parts criadas no servidor
-   (simples e correto, mas gera tráfego). Mover para um remote `PlayVfx` e criar
-   as parts localmente é a otimização natural quando o servidor encher.
+2. **Som.** Nenhum efeito sonoro ainda. Com os VFX prontos, é o que mais falta
+   para o combate ter impacto — som e imagem juntos valem mais que o dobro de
+   cada um separado.
+3. **Texturas de partícula próprias** (ver a seção de efeitos acima).
+4. **Barcos** de verdade em vez dos cais de teleporte.
 5. **ProfileStore** no lugar do `DataService` atual, para session locking de
    verdade quando o jogo tiver muitos jogadores simultâneos.
 6. **Raids de boss, trocas entre jogadores, ranking** (OrderedDataStore),

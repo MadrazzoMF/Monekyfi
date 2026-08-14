@@ -16,6 +16,7 @@ local MenuController = require(Controllers.MenuController)
 local QuestController = require(Controllers.QuestController)
 local NotifyController = require(Controllers.NotifyController)
 local DamageController = require(Controllers.DamageController)
+local VfxController = require(Controllers.VfxController)
 
 local player = Players.LocalPlayer
 
@@ -34,4 +35,5 @@ HudController.start(screen)
 QuestController.start(screen)
 MenuController.start(screen)
 DamageController.start()
+VfxController.start()
 CombatController.start()

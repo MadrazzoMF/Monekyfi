@@ -13,6 +13,7 @@ local Net = require(Shared.Net)
 local Signal = require(Shared.Util.Signal)
 
 local DataService = require(script.Parent.DataService)
+local VfxService = require(script.Parent.VfxService)
 
 local LevelService = {}
 
@@ -70,6 +71,16 @@ function LevelService.addXp(player, amount)
 	if leveled then
 		notify(player, string.format("Nível %d! +%d pontos", data.level, GameConfig.StatPointsPerLevel), "success")
 		LevelService.statsChanged:Fire(player)
+
+		-- Só para quem subiu: uma coluna de luz na tela dos outros a cada abate
+		-- alheio viraria poluição.
+		local root = player.Character and player.Character:FindFirstChild("HumanoidRootPart")
+		if root then
+			VfxService.playFor(player, {
+				id = "levelUp",
+				position = root.Position - Vector3.new(0, 2.5, 0),
+			})
+		end
 	end
 
 	DataService.push(player)

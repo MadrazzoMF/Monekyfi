@@ -16,11 +16,9 @@
 ]]
 
 local CollectionService = game:GetService("CollectionService")
-local Debris = game:GetService("Debris")
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
-local TweenService = game:GetService("TweenService")
 local Workspace = game:GetService("Workspace")
 
 local Shared = ReplicatedStorage:WaitForChild("Shared")
@@ -34,80 +32,38 @@ local Net = require(Shared.Net)
 
 local DataService = require(script.Parent.DataService)
 local NpcService = require(script.Parent.NpcService)
+local VfxService = require(script.Parent.VfxService)
 
 local CombatService = {}
 
 local cooldowns = Cooldowns.new()
 local warnCooldowns = Cooldowns.new()
-local vfxFolder = nil
+local projectileFolder = nil
 
 local PROJECTILE_MAX_LIFETIME = 6
 
--- Efeitos visuais -------------------------------------------------------------
+--[[
+	Pasta dos projéteis. Eles são as únicas parts que o servidor ainda cria no
+	combate — e mesmo elas nascem invisíveis: existem para o servidor mover e
+	testar acerto, e o cliente as veste (ver VfxService.tagProjectile).
 
-local function getVfxFolder()
-	if vfxFolder and vfxFolder.Parent then
-		return vfxFolder
+	Todo o resto do visual sai de VfxService.play, que só manda um pedido pela
+	rede. Nenhuma part de efeito é criada nem replicada pelo servidor.
+]]
+local function getProjectileFolder()
+	if projectileFolder and projectileFolder.Parent then
+		return projectileFolder
 	end
 
 	local world = Workspace:FindFirstChild("World") or Workspace
-	local folder = world:FindFirstChild("Vfx")
+	local folder = world:FindFirstChild("Projectiles")
 	if not folder then
 		folder = Instance.new("Folder")
-		folder.Name = "Vfx"
+		folder.Name = "Projectiles"
 		folder.Parent = world
 	end
-	vfxFolder = folder
+	projectileFolder = folder
 	return folder
-end
-
---[[
-	Os efeitos são criados no servidor para que todos os jogadores vejam o mesmo
-	golpe. É o caminho mais simples e correto; se o jogo crescer e a rede virar
-	gargalo, mova isto para um remote "PlayVfx" e crie as parts no cliente.
-]]
-local function burst(position, radius, color, lifetime)
-	local part = Instance.new("Part")
-	part.Shape = Enum.PartType.Ball
-	part.Anchored = true
-	part.CanCollide = false
-	part.CanQuery = false
-	part.CanTouch = false
-	part.Material = Enum.Material.Neon
-	part.Color = color
-	part.Transparency = 0.3
-	part.Size = Vector3.new(1, 1, 1) * math.max(1, radius * 0.4)
-	part.CFrame = CFrame.new(position)
-	part.Parent = getVfxFolder()
-
-	TweenService:Create(part, TweenInfo.new(lifetime, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
-		Size = Vector3.new(1, 1, 1) * radius * 2,
-		Transparency = 1,
-	}):Play()
-
-	Debris:AddItem(part, lifetime + 0.15)
-end
-
-local function beam(fromPosition, toPosition, color, thickness)
-	local offset = toPosition - fromPosition
-	local length = offset.Magnitude
-	if length < 0.5 then
-		return
-	end
-
-	local part = Instance.new("Part")
-	part.Anchored = true
-	part.CanCollide = false
-	part.CanQuery = false
-	part.CanTouch = false
-	part.Material = Enum.Material.Neon
-	part.Color = color
-	part.Size = Vector3.new(thickness, thickness, length)
-	part.CFrame = CFrame.lookAt(fromPosition + offset / 2, toPosition)
-	part.Parent = getVfxFolder()
-
-	TweenService:Create(part, TweenInfo.new(0.18), { Transparency = 1 }):Play()
-	Debris:AddItem(part, 0.25)
 end
 
 -- Alvos ----------------------------------------------------------------------
@@ -173,7 +129,7 @@ local function pvpBlockReason(attacker, attackerData, attackerPosition, targetPl
 	return nil
 end
 
-function CombatService.applyDamage(attacker, target, rawAmount)
+function CombatService.applyDamage(attacker, target, rawAmount, elementId)
 	local amount = rawAmount
 	if target.player then
 		amount *= GameConfig.PvpDamageMultiplier
@@ -192,6 +148,15 @@ function CombatService.applyDamage(attacker, target, rawAmount)
 	if target.player then
 		Net.event("Damage"):FireClient(target.player, position, amount, true)
 	end
+
+	-- O corpo atingido pisca. É o feedback mais importante do combate: sem ele
+	-- o jogador não sabe se o golpe pegou.
+	VfxService.play({
+		id = "hitFlash",
+		position = target.root.Position,
+		element = elementId,
+		target = target.model,
+	})
 end
 
 --[[
@@ -203,6 +168,7 @@ end
 		origin     Vector3?  -- necessário para cone
 		direction  Vector3?  -- necessário para cone
 		angle      number?   -- graus; presente => cone
+		element    string?   -- elemento usado no flash de acerto
 	}
 ]]
 local function damageInShape(attacker, attackerData, attackerPosition, shape, damage)
@@ -233,11 +199,11 @@ local function damageInShape(attacker, attackerData, attackerPosition, shape, da
 				if reason then
 					blockedReason = reason
 				else
-					CombatService.applyDamage(attacker, target, damage)
+					CombatService.applyDamage(attacker, target, damage, shape.element)
 					hits += 1
 				end
 			else
-				CombatService.applyDamage(attacker, target, damage)
+				CombatService.applyDamage(attacker, target, damage, shape.element)
 				hits += 1
 			end
 		end
@@ -300,22 +266,24 @@ end
 
 -- Projéteis ------------------------------------------------------------------
 
-local function launchProjectile(attacker, attackerData, origin, direction, move, damage, color)
+local function launchProjectile(attacker, attackerData, origin, direction, move, damage, fruit)
 	local part = Instance.new("Part")
 	part.Shape = Enum.PartType.Ball
 	part.Anchored = true
 	part.CanCollide = false
 	part.CanQuery = false
 	part.CanTouch = false
-	part.Material = Enum.Material.Neon
-	part.Color = color
+	part.Transparency = 1 -- o cliente é quem dá aparência a isto
 	part.Size = Vector3.new(1, 1, 1) * math.max(1.5, move.radius * 0.7)
 	part.CFrame = CFrame.new(origin)
-	part.Parent = getVfxFolder()
+
+	-- Tag e atributos ANTES do parent, para chegarem ao cliente junto com a part.
+	VfxService.tagProjectile(part, fruit.element, fruit.color, move.radius)
+	part.Parent = getProjectileFolder()
 
 	local rayParams = RaycastParams.new()
 	rayParams.FilterType = Enum.RaycastFilterType.Exclude
-	rayParams.FilterDescendantsInstances = { getVfxFolder(), attacker.Character }
+	rayParams.FilterDescendantsInstances = { getProjectileFolder(), attacker.Character }
 
 	local traveled = 0
 	local finished = false
@@ -332,10 +300,18 @@ local function launchProjectile(attacker, attackerData, origin, direction, move,
 		end
 		part:Destroy()
 
-		burst(position, move.radius, color, 0.35)
+		VfxService.play({
+			id = "projectileImpact",
+			position = position,
+			element = fruit.element,
+			color = fruit.color,
+			radius = move.radius,
+		})
+
 		damageInShape(attacker, attackerData, origin, {
 			center = position,
 			radius = move.radius,
+			element = fruit.element,
 		}, damage)
 	end
 
@@ -408,28 +384,46 @@ local function onM1(player, aimPosition)
 
 		local rayParams = RaycastParams.new()
 		rayParams.FilterType = Enum.RaycastFilterType.Exclude
-		rayParams.FilterDescendantsInstances = { getVfxFolder(), character }
+		rayParams.FilterDescendantsInstances = { getProjectileFolder(), character }
 
 		local result = Workspace:Raycast(origin, offset, rayParams)
 		local endPosition = result and result.Position or target
-		beam(origin, endPosition, weapon.color, 0.25)
 
+		local hitModel = nil
 		if result then
 			-- Um raio acerta um corpo só: resolve pelo modelo atingido.
-			local model = result.Instance:FindFirstAncestorOfClass("Model")
-			if model then
+			hitModel = result.Instance:FindFirstAncestorOfClass("Model")
+			if hitModel then
 				damageInShape(player, data, root.Position, {
-					center = model:GetPivot().Position,
+					center = hitModel:GetPivot().Position,
 					radius = 4,
+					element = weapon.element,
 				}, damage)
 			end
 		end
+
+		VfxService.play({
+			id = "gunshot",
+			position = endPosition,
+			origin = origin + direction * 2,
+			element = weapon.element,
+			color = weapon.color,
+		})
 	else
 		local center = root.Position + direction * (weapon.range * 0.5)
-		burst(center, weapon.hitRadius * 0.8, weapon.color, 0.22)
+
+		VfxService.play({
+			id = weapon.stat == "Sword" and "swordSlash" or "meleeImpact",
+			position = center,
+			element = weapon.element,
+			color = weapon.color,
+			radius = weapon.hitRadius,
+		})
+
 		damageInShape(player, data, root.Position, {
 			center = center,
 			radius = weapon.hitRadius,
+			element = weapon.element,
 		}, damage)
 	end
 
@@ -467,24 +461,59 @@ local function onUseMove(player, moveKey, aimPosition)
 
 	if move.kind == "Projectile" then
 		local origin = root.Position + Vector3.new(0, 1.5, 0) + direction * 3
-		launchProjectile(player, data, origin, direction, move, damage, fruit.color)
+		launchProjectile(player, data, origin, direction, move, damage, fruit)
 	elseif move.kind == "AreaAtTarget" then
 		local center = clampAim(root, aimPosition, move.range)
-		burst(center, move.radius, fruit.color, 0.4)
-		damageInShape(player, data, root.Position, { center = center, radius = move.radius }, damage)
+
+		VfxService.play({
+			id = "areaBlast",
+			position = center,
+			element = fruit.element,
+			color = fruit.color,
+			radius = move.radius,
+		})
+
+		damageInShape(player, data, root.Position, {
+			center = center,
+			radius = move.radius,
+			element = fruit.element,
+		}, damage)
 	elseif move.kind == "ConeInFront" then
 		local center = root.Position + direction * (move.range * 0.5)
-		burst(center, move.range * 0.45, fruit.color, 0.35)
+
+		VfxService.play({
+			id = "cone",
+			position = center,
+			origin = root.Position + Vector3.new(0, 1.5, 0) + direction * 2,
+			direction = direction,
+			length = move.range,
+			width = move.range * math.tan(math.rad(move.angle)) * 0.9,
+			element = fruit.element,
+			color = fruit.color,
+		})
+
 		damageInShape(player, data, root.Position, {
 			center = center,
 			radius = move.range * 0.65,
 			origin = root.Position,
 			direction = direction,
 			angle = move.angle,
+			element = fruit.element,
 		}, damage)
 	elseif move.kind == "AroundSelf" then
-		burst(root.Position, move.radius, fruit.color, 0.45)
-		damageInShape(player, data, root.Position, { center = root.Position, radius = move.radius }, damage)
+		VfxService.play({
+			id = "nova",
+			position = root.Position,
+			element = fruit.element,
+			color = fruit.color,
+			radius = move.radius,
+		})
+
+		damageInShape(player, data, root.Position, {
+			center = root.Position,
+			radius = move.radius,
+			element = fruit.element,
+		}, damage)
 	end
 
 	Net.event("MoveResult"):FireClient(player, moveKey, move.cooldown)

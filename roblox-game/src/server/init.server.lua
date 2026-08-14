@@ -16,6 +16,7 @@ local Net = require(Shared.Net)
 local MapBuilder = require(script.World.MapBuilder)
 
 local Services = script.Services
+local VfxService = require(Services.VfxService)
 local DataService = require(Services.DataService)
 local LevelService = require(Services.LevelService)
 local CharacterService = require(Services.CharacterService)
@@ -31,6 +32,8 @@ local startClock = os.clock()
 Net.initServer()
 MapBuilder.build()
 
+-- VfxService antes dos demais: eles pedem efeitos desde o primeiro abate.
+VfxService.start()
 DataService.start()
 LevelService.start()
 CharacterService.start()

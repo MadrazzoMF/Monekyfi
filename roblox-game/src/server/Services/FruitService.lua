@@ -15,6 +15,7 @@ local FruitConfig = require(Shared.Config.FruitConfig)
 local Net = require(Shared.Net)
 
 local DataService = require(script.Parent.DataService)
+local VfxService = require(script.Parent.VfxService)
 
 local FruitService = {}
 
@@ -58,8 +59,19 @@ local function onEaten(player, fruitId, model)
 
 	-- Destrói antes de notificar: evita dois jogadores comerem a mesma fruta
 	-- se acionarem o prompt no mesmo frame.
+	local position = model.Position
 	model:Destroy()
 	activeCount = math.max(0, activeCount - 1)
+
+	-- Explosão do elemento da fruta em volta de quem comeu: é a recompensa
+	-- visual de ter achado a fruta, e já ensina como o poder vai parecer.
+	VfxService.play({
+		id = "fruitEaten",
+		position = position,
+		element = fruit.element,
+		color = fruit.color,
+		radius = 12,
+	})
 
 	if previous and previous ~= fruitId then
 		local previousFruit = FruitConfig.get(previous)
@@ -97,13 +109,17 @@ local function spawnFruit()
 	model.Material = Enum.Material.Neon
 	model.Color = fruit.color
 	model.CFrame = CFrame.new(marker.Position)
-	model.Parent = fruitFolder
 
 	local light = Instance.new("PointLight")
 	light.Color = fruit.color
 	light.Brightness = 3
 	light.Range = 22
 	light.Parent = model
+
+	-- Tag antes do parent: o cliente recebe atributos e part no mesmo pacote e
+	-- adiciona a aura de partículas do elemento.
+	VfxService.tagFruit(model, fruit.element, fruit.color)
+	model.Parent = fruitFolder
 
 	local billboard = Instance.new("BillboardGui")
 	billboard.Size = UDim2.fromScale(10, 2.4)

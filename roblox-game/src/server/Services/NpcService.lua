@@ -21,6 +21,7 @@ local Net = require(Shared.Net)
 local DataService = require(script.Parent.DataService)
 local LevelService = require(script.Parent.LevelService)
 local QuestService = require(script.Parent.QuestService)
+local VfxService = require(script.Parent.VfxService)
 local RigBuilder = require(script.Parent.Parent.World.RigBuilder)
 
 local NpcService = {}
@@ -96,6 +97,16 @@ local function onDeath(record)
 	CollectionService:RemoveTag(record.model, NpcService.EnemyTag)
 	rewardKill(record)
 	records[record.model] = nil
+
+	if record.root then
+		VfxService.play({
+			id = "death",
+			position = record.root.Position,
+			element = "Physical",
+			color = record.def.shirtColor,
+			radius = record.def.isBoss and 16 or 7,
+		})
+	end
 
 	local model = record.model
 	task.delay(CORPSE_LIFETIME, function()
@@ -222,6 +233,16 @@ local function attack(record, targetCharacter)
 	local root = targetCharacter:FindFirstChild("HumanoidRootPart")
 	if player and root then
 		Net.event("Damage"):FireClient(player, root.Position, record.def.damage, true)
+
+		-- O tremor cai com a distância da câmera, então quem levou sente o
+		-- golpe e quem está de fora quase não percebe.
+		VfxService.play({
+			id = "npcHit",
+			position = root.Position,
+			element = "Physical",
+			radius = 5,
+			target = targetCharacter,
+		})
 	end
 end
 

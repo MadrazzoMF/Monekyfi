@@ -20,6 +20,7 @@ FruitConfig.Fruits = {
 		weight = 40, -- peso no sorteio de spawn
 		price = 7500,
 		color = Color3.fromRGB(255, 110, 40),
+		element = "Fire",
 		moves = {
 			{
 				key = "Z",
@@ -58,6 +59,7 @@ FruitConfig.Fruits = {
 		weight = 25,
 		price = 14000,
 		color = Color3.fromRGB(140, 220, 255),
+		element = "Ice",
 		moves = {
 			{
 				key = "Z",
@@ -96,6 +98,7 @@ FruitConfig.Fruits = {
 		weight = 18,
 		price = 26000,
 		color = Color3.fromRGB(225, 195, 120),
+		element = "Sand",
 		moves = {
 			{
 				key = "Z",
@@ -134,6 +137,7 @@ FruitConfig.Fruits = {
 		weight = 12,
 		price = 45000,
 		color = Color3.fromRGB(255, 230, 90),
+		element = "Lightning",
 		moves = {
 			{
 				key = "Z",
@@ -172,6 +176,7 @@ FruitConfig.Fruits = {
 		weight = 5,
 		price = 80000,
 		color = Color3.fromRGB(255, 250, 200),
+		element = "Light",
 		moves = {
 			{
 				key = "Z",
