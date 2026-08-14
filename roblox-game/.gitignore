@@ -1,0 +1,9 @@
+# Lugares gerados por `rojo build` — o código-fonte é a verdade, não o .rbxl
+*.rbxl
+*.rbxlx
+*.rbxl.lock
+*.rbxlx.lock
+
+# Backups do Studio
+*.rbxm
+*.rbxmx

@@ -1,0 +1,5 @@
+# Ferramentas do projeto, instaladas com `aftman install`.
+# Aftman: https://github.com/LPGhatguy/aftman
+
+[tools]
+rojo = "rojo-rbx/rojo@7.4.4"
