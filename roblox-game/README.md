@@ -51,9 +51,25 @@ interface — então você consegue entrar e jogar sem modelar nada no Studio.
 
 ## Como rodar
 
-Escolha **um** dos dois caminhos.
+Três caminhos. Se é a primeira vez, use o **Caminho A**.
 
-### Caminho A — Rojo (recomendado)
+### Caminho A — abrir o arquivo pronto (mais rápido, zero instalação)
+
+`build/MonkeyPirates.rbxl` já é um lugar do Roblox com todo o código dentro, no
+lugar certo. Baixe, abra no Roblox Studio e aperte Play.
+
+Este arquivo é gerado a partir de `src/` com `rojo build`. **O código-fonte é a
+verdade** — se `src/` mudar e o build não for regerado, o `.rbxl` fica velho.
+Para regerar:
+
+```bash
+cd roblox-game
+rojo build -o build/MonkeyPirates.rbxl
+```
+
+Use este caminho para jogar e testar. Para *desenvolver*, vá para o Caminho B.
+
+### Caminho B — Rojo (recomendado para desenvolver)
 
 O código fica em arquivos versionados no Git e sincroniza com o Studio em tempo
 real. Toda mudança que você (ou eu) fizer aparece no Studio sozinha.
@@ -97,7 +113,7 @@ Para gerar um arquivo `.rbxl` fechado, sem sincronização:
 rojo build -o MonkeyPirates.rbxl
 ```
 
-### Caminho B — copiar e colar no Studio
+### Caminho C — copiar e colar no Studio
 
 Sem instalar nada. A desvantagem é que você repete o processo a cada
 atualização. **Os nomes têm que ser exatamente estes** — os `require` do código
@@ -157,12 +173,20 @@ o Script/LocalScript pai, não um filho chamado "init".
 
 ## Configurações necessárias no Studio
 
-**1. DataStore (obrigatório para salvar progresso)**
+**1. DataStore (para salvar progresso)**
 
-`Game Settings → Security → Enable Studio Access to API Services` → **ligado**.
+Duas condições, nesta ordem:
 
-Sem isso o jogo roda normalmente, mas nada é salvo e você verá um aviso no
-Output. Em produção (jogo publicado) o DataStore funciona sem essa flag.
+1. **Publique o lugar pelo menos uma vez** (`File → Publish to Roblox As...`).
+   Um arquivo local que nunca foi publicado não tem onde guardar dados — não
+   existe um "jogo" no Roblox associado a ele.
+2. Depois de publicar: `File → Game Settings → Security` →
+   **Enable Studio Access to API Services** ligado.
+
+Sem isso o jogo roda normalmente, mas nada é salvo e aparece um aviso no Output.
+O `DataService` foi feito para degradar em silêncio nesse caso, em vez de quebrar.
+No jogo publicado (jogado pelo site/app, não pelo Studio) o DataStore funciona
+sem a flag — ela é só para o Studio.
 
 **2. Avatar R6 (recomendado)**
 

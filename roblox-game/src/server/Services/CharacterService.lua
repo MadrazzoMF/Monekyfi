@@ -23,6 +23,10 @@ local CharacterService = {}
 -- sempre para a ilha inicial.
 local lastZoneId = {}
 
+-- Abaixo desta altura o jogador está em queda livre fora do mapa: o fundo do
+-- mar fica em -30, então qualquer coisa abaixo disso é queda de verdade.
+local FALL_RESCUE_Y = -60
+
 local function humanoidOf(player)
 	local character = player.Character
 	if not character then
@@ -213,6 +217,29 @@ function CharacterService.start()
 	-- Nível ou Defesa mudou: reaplica a vida máxima.
 	LevelService.statsChanged:Connect(function(player)
 		CharacterService.applyStats(player)
+	end)
+
+	-- Resgate de queda. Um jogador que cai fora do mapa (entre ilhas, ou logo
+	-- no primeiro segundo do servidor, antes do mundo terminar de nascer) volta
+	-- para a ilha inicial em vez de cair para sempre.
+	task.spawn(function()
+		local spawnZone = ZoneConfig.spawnZone()
+
+		while true do
+			task.wait(1)
+
+			for _, player in ipairs(Players:GetPlayers()) do
+				local character = player.Character
+				local root = character and character:FindFirstChild("HumanoidRootPart")
+
+				if root and root.Position.Y < FALL_RESCUE_Y then
+					local angle = math.random() * math.pi * 2
+					local offset = Vector3.new(math.cos(angle) * 18, 6, math.sin(angle) * 18)
+					character:PivotTo(CFrame.new(spawnZone.center + offset))
+					Net.event("Notify"):FireClient(player, "Você caiu do mapa e voltou para a ilha inicial.", "info")
+				end
+			end
+		end
 	end)
 end
 

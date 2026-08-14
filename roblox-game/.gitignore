@@ -4,6 +4,11 @@
 *.rbxl.lock
 *.rbxlx.lock
 
+# Exceção: build de conveniência, para abrir o jogo no Studio sem instalar nada.
+# Precisa ser regerado (`rojo build -o build/MonkeyPirates.rbxl`) sempre que
+# algo em src/ mudar.
+!build/MonkeyPirates.rbxl
+
 # Backups do Studio
 *.rbxm
 *.rbxmx

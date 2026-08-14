@@ -393,10 +393,6 @@ function MapBuilder.build()
 	newFolder("Npcs", world)
 	newFolder("Fruits", world)
 
-	if GENERATE_OCEAN then
-		buildOcean()
-	end
-
 	for _, zone in ipairs(ZoneConfig.Zones) do
 		local group = buildIsland(zone, zonesFolder)
 		buildDecor(zone, group)
@@ -416,6 +412,13 @@ function MapBuilder.build()
 			spawnLocation.Duration = 0 -- sem forcefield: PVP é decidido por zona
 			spawnLocation.Parent = group
 		end
+	end
+
+	-- O mar vem por último de propósito. Preencher o Terrain leva alguns
+	-- segundos, e se ele viesse antes o primeiro jogador poderia entrar antes
+	-- das ilhas existirem e cair na água.
+	if GENERATE_OCEAN then
+		buildOcean()
 	end
 
 	return world
