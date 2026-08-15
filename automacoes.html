@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Automações · Monekyfi</title>
+  <link rel="icon" type="image/svg+xml" href="img/favicon.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Caprasimo&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <main class="container">
+    <div class="page-head">
+      <div>
+        <h1 class="title-doodle"><span id="icone"></span> Automações</h1>
+        <p>Catálogo dos seus robôs: o que cada automação faz, onde roda e se está ativa.</p>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3 id="form-titulo">Registrar automação</h3>
+      <form id="form" class="form-grid">
+        <div class="field">
+          <label for="f-nome">Nome</label>
+          <input id="f-nome" required placeholder="Ex.: Postar shorts automático">
+        </div>
+        <div class="field">
+          <label for="f-ferramenta">Ferramenta</label>
+          <input id="f-ferramenta" list="ferramentas" placeholder="n8n, Make, Zapier, script...">
+          <datalist id="ferramentas">
+            <option value="n8n"><option value="Make"><option value="Zapier">
+            <option value="Script próprio"><option value="IFTTT"><option value="Apps Script">
+          </datalist>
+        </div>
+        <div class="field">
+          <label for="f-status">Status</label>
+          <select id="f-status">
+            <option value="ativa">🟢 Ativa</option>
+            <option value="pausada">🟡 Pausada</option>
+            <option value="ideia">💡 Ideia</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="f-link">Link (opcional)</label>
+          <input id="f-link" type="url" placeholder="https://...">
+        </div>
+        <div class="field wide">
+          <label for="f-descricao">O que ela faz (gatilho → ação)</label>
+          <textarea id="f-descricao" placeholder="Ex.: Quando sai vídeo novo no canal → posta no grupo e salva na planilha"></textarea>
+        </div>
+        <div class="row">
+          <button class="btn" type="submit">Guardar 🍌</button>
+          <button class="btn ghost" type="button" id="cancelar" hidden>Cancelar edição</button>
+        </div>
+      </form>
+    </div>
+
+    <div class="chips mt-1" id="filtros"></div>
+    <div class="item-list" id="lista"></div>
+  </main>
+
+  <script src="js/app.js"></script>
+  <script src="js/automacoes.js"></script>
+</body>
+</html>

@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Finanças · Monekyfi</title>
+  <link rel="icon" type="image/svg+xml" href="img/favicon.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Caprasimo&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <main class="container">
+    <div class="page-head">
+      <div>
+        <h1 class="title-doodle"><span id="icone"></span> Finanças</h1>
+        <p>Seu balanço da selva: ativos, passivos, patrimônio líquido e o fluxo de bananas do mês.</p>
+      </div>
+    </div>
+
+    <section class="grid grid-4" id="resumo"></section>
+
+    <section class="grid grid-2 mt-2">
+      <div class="card">
+        <h3>🌳 Ativos <span class="muted" id="total-ativos"></span></h3>
+        <form id="form-ativo" class="form-grid">
+          <div class="field">
+            <label for="a-nome">Nome</label>
+            <input id="a-nome" required placeholder="Ex.: Conta corrente">
+          </div>
+          <div class="field">
+            <label for="a-tipo">Tipo</label>
+            <select id="a-tipo">
+              <option value="circulante">Circulante (dinheiro, conta)</option>
+              <option value="investimento">Investimento</option>
+              <option value="imobilizado">Não circulante (bens)</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="a-valor">Valor (R$)</label>
+            <input id="a-valor" type="number" step="0.01" min="0" required placeholder="0,00">
+          </div>
+          <div><button class="btn small" type="submit">+ Adicionar</button></div>
+        </form>
+        <table class="money-table" id="tabela-ativos"></table>
+      </div>
+
+      <div class="card alt">
+        <h3>🪨 Passivos <span class="muted" id="total-passivos"></span></h3>
+        <form id="form-passivo" class="form-grid">
+          <div class="field">
+            <label for="p-nome">Nome</label>
+            <input id="p-nome" required placeholder="Ex.: Fatura do cartão">
+          </div>
+          <div class="field">
+            <label for="p-tipo">Tipo</label>
+            <select id="p-tipo">
+              <option value="circulante">Circulante (curto prazo)</option>
+              <option value="longo">Não circulante (longo prazo)</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="p-valor">Valor (R$)</label>
+            <input id="p-valor" type="number" step="0.01" min="0" required placeholder="0,00">
+          </div>
+          <div><button class="btn small" type="submit">+ Adicionar</button></div>
+        </form>
+        <table class="money-table" id="tabela-passivos"></table>
+      </div>
+    </section>
+
+    <section class="card mt-2">
+      <div class="row spread">
+        <h3 class="mt-0">🍌 Fluxo do mês</h3>
+        <input id="mes" type="month">
+      </div>
+      <form id="form-fluxo" class="form-grid">
+        <div class="field">
+          <label for="fl-desc">Descrição</label>
+          <input id="fl-desc" required placeholder="Ex.: AdSense, mercado, freelas...">
+        </div>
+        <div class="field">
+          <label for="fl-tipo">Tipo</label>
+          <select id="fl-tipo">
+            <option value="entrada">🟢 Entrada</option>
+            <option value="saida">🔴 Saída</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="fl-valor">Valor (R$)</label>
+          <input id="fl-valor" type="number" step="0.01" min="0" required placeholder="0,00">
+        </div>
+        <div class="field">
+          <label for="fl-data">Data</label>
+          <input id="fl-data" type="date" required>
+        </div>
+        <div><button class="btn small" type="submit">+ Lançar</button></div>
+      </form>
+      <div class="grid grid-3 mt-1" id="resumo-fluxo"></div>
+      <table class="money-table" id="tabela-fluxo"></table>
+    </section>
+  </main>
+
+  <script src="js/app.js"></script>
+  <script src="js/financas.js"></script>
+</body>
+</html>

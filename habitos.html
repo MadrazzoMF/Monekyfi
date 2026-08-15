@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Hábitos · Monekyfi</title>
+  <link rel="icon" type="image/svg+xml" href="img/favicon.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Caprasimo&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <main class="container">
+    <div class="page-head">
+      <div>
+        <h1 class="title-doodle"><span id="icone"></span> Hábitos</h1>
+        <p>Constância diária: marque seus hábitos e mantenha a sequência de bananas viva.</p>
+      </div>
+    </div>
+
+    <div class="card">
+      <form id="form" class="form-grid">
+        <div class="field wide">
+          <label for="f-nome">Novo hábito</label>
+          <input id="f-nome" required placeholder="Ex.: Treinar, ler 10 páginas, gravar 1 vídeo...">
+        </div>
+        <div><button class="btn" type="submit">Plantar hábito 🌱</button></div>
+      </form>
+    </div>
+
+    <div class="card mt-1">
+      <div class="row spread">
+        <h3 class="mt-0">Semana atual</h3>
+        <div class="row">
+          <button class="btn small ghost" id="semana-antes">← semana</button>
+          <span class="muted" id="rotulo-semana"></span>
+          <button class="btn small ghost" id="semana-depois">semana →</button>
+        </div>
+      </div>
+      <div style="overflow-x:auto;">
+        <table class="habit-table" id="grade"></table>
+      </div>
+    </div>
+  </main>
+
+  <script src="js/app.js"></script>
+  <script src="js/habitos.js"></script>
+</body>
+</html>

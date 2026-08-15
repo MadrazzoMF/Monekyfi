@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Prompts · Monekyfi</title>
+  <link rel="icon" type="image/svg+xml" href="img/favicon.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Caprasimo&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <main class="container">
+    <div class="page-head">
+      <div>
+        <h1 class="title-doodle"><span id="icone"></span> Prompts</h1>
+        <p>Sua biblioteca de prompts de IA — guarde, organize por categoria e copie com um clique.</p>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3 id="form-titulo">Guardar novo prompt</h3>
+      <form id="form" class="form-grid">
+        <div class="field">
+          <label for="f-titulo">Título</label>
+          <input id="f-titulo" required placeholder="Ex.: Roteiro de vídeo curto">
+        </div>
+        <div class="field">
+          <label for="f-categoria">Categoria</label>
+          <input id="f-categoria" list="categorias" placeholder="Ex.: Roteiros">
+          <datalist id="categorias"></datalist>
+        </div>
+        <div class="field">
+          <label for="f-area">Área</label>
+          <select id="f-area">
+            <option value="canal">Canal</option>
+            <option value="pessoal">Pessoal</option>
+          </select>
+        </div>
+        <div class="field wide">
+          <label for="f-conteudo">Prompt</label>
+          <textarea id="f-conteudo" required placeholder="Cole ou escreva o prompt aqui..."></textarea>
+        </div>
+        <div class="row">
+          <button class="btn" type="submit">Guardar 🍌</button>
+          <button class="btn ghost" type="button" id="cancelar" hidden>Cancelar edição</button>
+        </div>
+      </form>
+    </div>
+
+    <div class="row mt-1">
+      <input id="busca" placeholder="🔍 Buscar prompt..." style="flex:1; min-width:200px;">
+    </div>
+    <div class="chips mt-1" id="filtros"></div>
+
+    <div class="item-list" id="lista"></div>
+  </main>
+
+  <script src="js/app.js"></script>
+  <script src="js/prompts.js"></script>
+</body>
+</html>

@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Notas · Monekyfi</title>
+  <link rel="icon" type="image/svg+xml" href="img/favicon.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Caprasimo&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <main class="container">
+    <div class="page-head">
+      <div>
+        <h1 class="title-doodle"><span id="icone"></span> Notas</h1>
+        <p>Caderninho da selva: ideias soltas, aprendizados e qualquer coisa que não pode se perder.</p>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3 id="form-titulo">Nova nota</h3>
+      <form id="form" class="form-grid">
+        <div class="field">
+          <label for="f-titulo">Título</label>
+          <input id="f-titulo" required placeholder="Ex.: Ideia de série de vídeos">
+        </div>
+        <div class="field">
+          <label for="f-area">Área</label>
+          <select id="f-area">
+            <option value="canal">Canal</option>
+            <option value="pessoal">Pessoal</option>
+          </select>
+        </div>
+        <div class="field wide">
+          <label for="f-conteudo">Conteúdo</label>
+          <textarea id="f-conteudo" required placeholder="Escreva aqui..."></textarea>
+        </div>
+        <div class="row">
+          <button class="btn" type="submit">Guardar 🍌</button>
+          <button class="btn ghost" type="button" id="cancelar" hidden>Cancelar edição</button>
+        </div>
+      </form>
+    </div>
+
+    <div class="row mt-1">
+      <input id="busca" placeholder="🔍 Buscar nota..." style="flex:1; min-width:200px;">
+    </div>
+
+    <div class="grid grid-2 mt-1" id="lista"></div>
+  </main>
+
+  <script src="js/app.js"></script>
+  <script src="js/notas.js"></script>
+</body>
+</html>

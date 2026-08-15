@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Tarefas · Monekyfi</title>
+  <link rel="icon" type="image/svg+xml" href="img/favicon.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Caprasimo&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <main class="container">
+    <div class="page-head">
+      <div>
+        <h1 class="title-doodle"><span id="icone"></span> Tarefas</h1>
+        <p>Um galho de cada vez: o que precisa ser feito, do canal e da vida pessoal.</p>
+      </div>
+    </div>
+
+    <div class="card">
+      <form id="form" class="form-grid">
+        <div class="field wide">
+          <label for="f-texto">Nova tarefa</label>
+          <input id="f-texto" required placeholder="Ex.: Gravar vídeo sobre renda fixa">
+        </div>
+        <div class="field">
+          <label for="f-prioridade">Prioridade</label>
+          <select id="f-prioridade">
+            <option value="alta">🔥 Alta</option>
+            <option value="media" selected>🍌 Média</option>
+            <option value="baixa">🍃 Baixa</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="f-area">Área</label>
+          <select id="f-area">
+            <option value="canal">Canal</option>
+            <option value="pessoal">Pessoal</option>
+          </select>
+        </div>
+        <div><button class="btn" type="submit">Adicionar 🍌</button></div>
+      </form>
+    </div>
+
+    <div class="chips mt-1" id="filtros"></div>
+    <div class="item-list" id="lista"></div>
+    <p class="mt-1"><button class="btn ghost small" id="limpar-feitas">Limpar concluídas</button></p>
+  </main>
+
+  <script src="js/app.js"></script>
+  <script src="js/tarefas.js"></script>
+</body>
+</html>

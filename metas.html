@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Metas · Monekyfi</title>
+  <link rel="icon" type="image/svg+xml" href="img/favicon.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Caprasimo&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <main class="container">
+    <div class="page-head">
+      <div>
+        <h1 class="title-doodle"><span id="icone"></span> Metas</h1>
+        <p>Onde você quer chegar: metas do canal e da vida, com progresso visível.</p>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Plantar nova meta</h3>
+      <form id="form" class="form-grid">
+        <div class="field wide">
+          <label for="f-titulo">Meta</label>
+          <input id="f-titulo" required placeholder="Ex.: Chegar a 10.000 inscritos">
+        </div>
+        <div class="field">
+          <label for="f-alvo">Valor alvo</label>
+          <input id="f-alvo" type="number" step="any" min="0.01" required placeholder="Ex.: 10000">
+        </div>
+        <div class="field">
+          <label for="f-atual">Valor atual</label>
+          <input id="f-atual" type="number" step="any" min="0" value="0">
+        </div>
+        <div class="field">
+          <label for="f-unidade">Unidade</label>
+          <input id="f-unidade" placeholder="inscritos, R$, kg, vídeos...">
+        </div>
+        <div class="field">
+          <label for="f-prazo">Prazo (opcional)</label>
+          <input id="f-prazo" type="date">
+        </div>
+        <div class="field">
+          <label for="f-area">Área</label>
+          <select id="f-area">
+            <option value="canal">Canal</option>
+            <option value="pessoal">Pessoal</option>
+          </select>
+        </div>
+        <div><button class="btn" type="submit">Plantar 🌱</button></div>
+      </form>
+    </div>
+
+    <div class="grid grid-2 mt-1" id="lista"></div>
+  </main>
+
+  <script src="js/app.js"></script>
+  <script src="js/metas.js"></script>
+</body>
+</html>

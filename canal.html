@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Canal · Monekyfi</title>
+  <link rel="icon" type="image/svg+xml" href="img/favicon.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Caprasimo&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <main class="container">
+    <div class="page-head">
+      <div>
+        <h1 class="title-doodle"><span id="icone"></span> Canal</h1>
+        <p>Central do canal: da ideia ao vídeo publicado, cada macaco no seu galho.</p>
+      </div>
+    </div>
+
+    <div class="card">
+      <form id="form" class="form-grid">
+        <div class="field wide">
+          <label for="f-titulo">Nova ideia de vídeo</label>
+          <input id="f-titulo" required placeholder="Ex.: Como sair das dívidas ganhando pouco">
+        </div>
+        <div class="field">
+          <label for="f-formato">Formato</label>
+          <select id="f-formato">
+            <option value="video">🎬 Vídeo longo</option>
+            <option value="short">⚡ Short</option>
+            <option value="live">🔴 Live</option>
+          </select>
+        </div>
+        <div class="field wide">
+          <label for="f-obs">Observações (opcional)</label>
+          <input id="f-obs" placeholder="Gancho, referências, o que não esquecer...">
+        </div>
+        <div><button class="btn" type="submit">Adicionar ao pipeline 🍌</button></div>
+      </form>
+    </div>
+
+    <div class="kanban" id="kanban"></div>
+  </main>
+
+  <script src="js/app.js"></script>
+  <script src="js/canal.js"></script>
+</body>
+</html>

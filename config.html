@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Backup · Monekyfi</title>
+  <link rel="icon" type="image/svg+xml" href="img/favicon.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Caprasimo&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <main class="container">
+    <div class="page-head">
+      <div>
+        <h1 class="title-doodle"><span id="icone"></span> Backup &amp; dados</h1>
+        <p>Seus dados ficam salvos só neste navegador. Exporte um backup de vez em quando pra não perder nada.</p>
+      </div>
+    </div>
+
+    <div class="grid grid-2">
+      <div class="card">
+        <h3>📦 Exportar backup</h3>
+        <p class="muted">Baixa um arquivo <code>.json</code> com tudo: prompts, automações, finanças, tarefas, hábitos, metas, notas e vídeos.</p>
+        <button class="btn" id="exportar">Baixar backup 🍌</button>
+      </div>
+
+      <div class="card alt">
+        <h3>📥 Importar backup</h3>
+        <p class="muted">Restaura um backup exportado antes. Os dados do arquivo substituem os deste navegador.</p>
+        <input type="file" id="arquivo" accept="application/json,.json">
+        <div class="mt-1"><button class="btn leaf" id="importar">Importar</button></div>
+      </div>
+    </div>
+
+    <div class="card mt-1" style="border-color:#9c3b22;">
+      <h3 style="color:#9c3b22;">🔥 Zona de perigo</h3>
+      <p class="muted">Apaga todos os dados do Monekyfi deste navegador. Sem volta (a não ser que tenha backup).</p>
+      <button class="btn danger" id="apagar-tudo">Apagar tudo</button>
+    </div>
+
+    <div class="card mt-1">
+      <h3>🐵 Sobre o Monekyfi</h3>
+      <p class="muted">
+        Organizador de vida com alma de selva: prompts de IA, automações, finanças (ativos, passivos e fluxo),
+        tarefas, hábitos, metas, notas e o pipeline do canal — tudo num lugar só, feito à mão, sem servidor.
+        Os dados vivem no <strong>localStorage</strong> do seu navegador.
+      </p>
+    </div>
+  </main>
+
+  <script src="js/app.js"></script>
+  <script src="js/config.js"></script>
+</body>
+</html>
