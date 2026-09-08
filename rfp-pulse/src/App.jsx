@@ -1,12 +1,15 @@
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { BrowserRouter, HashRouter, Routes, Route } from 'react-router-dom';
 import { Layout } from './components/Layout.jsx';
 import { Dashboard } from './pages/Dashboard.jsx';
 import { NovoEdital } from './pages/NovoEdital.jsx';
 import { DetalheEdital } from './pages/DetalheEdital.jsx';
 
+// Aberto direto do disco (file://) não há servidor para rotas limpas: usa hash.
+const Router = typeof window !== 'undefined' && window.location.protocol === 'file:' ? HashRouter : BrowserRouter;
+
 export function App() {
   return (
-    <BrowserRouter>
+    <Router>
       <Routes>
         <Route element={<Layout />}>
           <Route path="/" element={<Dashboard />} />
@@ -14,6 +17,6 @@ export function App() {
           <Route path="/edital/:id" element={<DetalheEdital />} />
         </Route>
       </Routes>
-    </BrowserRouter>
+    </Router>
   );
 }
