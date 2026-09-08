@@ -19,6 +19,14 @@ npm test         # Vitest
 - `src/components/` — painéis do detalhe, tabela, filtros e primitivos de UI em `ui/`.
 - `src/pages/` — `/` dashboard, `/novo` importação com análise, `/edital/:id` visão dividida.
 
+## Build limpo (sem exemplos)
+
+```bash
+VITE_SEM_SEED=true VITE_STORAGE_SUFFIX=:limpo npm run build
+```
+
+Começa sem editais, com um usuário admin local. O dashboard vazio oferece o botão "Carregar 10 exemplos".
+
 ## Fases entregues
 
 1. **Fundação** — entidades, máquina de estados, reducer, persistência, seed, testes das funções puras.

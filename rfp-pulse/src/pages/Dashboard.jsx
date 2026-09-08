@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { useAppState, useEditais, useUsuarios } from '../state/hooks.js';
+import { useAppDispatch, useAppState, useEditais, useUsuarios } from '../state/hooks.js';
+import { acoes } from '../state/acoes.js';
 import { aplicarFiltros, FILTROS_PADRAO } from '../lib/filtros.js';
 import { ResumoEditais } from '../components/ResumoEditais.jsx';
 import { FiltrosEditais } from '../components/FiltrosEditais.jsx';
@@ -22,6 +23,7 @@ export function Dashboard() {
   const state = useAppState();
   const editais = useEditais();
   const usuarios = useUsuarios();
+  const dispatch = useAppDispatch();
   const [filtros, setFiltros] = useState(lerFiltros);
 
   const atualizarFiltros = (novos) => {
@@ -50,7 +52,14 @@ export function Dashboard() {
         <Vazio
           titulo="Nenhum edital importado ainda"
           descricao="Cole o texto de um edital ou RFP e deixe o motor de análise sugerir critérios, riscos e checklist."
-          acao={<Link to="/novo" className="btn-primary">Importar o primeiro edital</Link>}
+          acao={
+            <div className="flex gap-2">
+              <Link to="/novo" className="btn-primary">Importar o primeiro edital</Link>
+              <button type="button" className="btn-secondary" onClick={() => dispatch(acoes.resetarParaSeed())}>
+                Carregar 10 exemplos
+              </button>
+            </div>
+          }
         />
       ) : (
         <>

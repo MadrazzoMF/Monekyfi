@@ -25,3 +25,13 @@ export const COLECOES = Object.freeze([
   'aprovacoes',
   'usuarios',
 ]);
+
+/** Estado sem editais, com um usuário admin local para permitir transições. */
+export function criarEstadoLimpo() {
+  const s = criarEstadoInicial();
+  const usuario = { id: 'us_local', nome: 'Usuário local', papel: 'admin' };
+  s.usuarios.porId[usuario.id] = usuario;
+  s.usuarios.ids.push(usuario.id);
+  s.usuarioAtualId = usuario.id;
+  return s;
+}

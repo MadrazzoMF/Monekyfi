@@ -5,7 +5,8 @@
 import { criarEstadoInicial, COLECOES } from './estadoInicial.js';
 
 export const SCHEMA_VERSION = 1;
-export const CHAVE_STORAGE = 'rfp-pulse:estado';
+const SUFIXO = (typeof import.meta !== 'undefined' && import.meta.env?.VITE_STORAGE_SUFFIX) || '';
+export const CHAVE_STORAGE = `rfp-pulse:estado${SUFIXO}`;
 
 /**
  * Migrações sequenciais. Chave = versão de origem, valor = fn(state) -> state na versão seguinte.
