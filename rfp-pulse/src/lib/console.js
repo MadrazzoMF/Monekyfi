@@ -8,6 +8,7 @@ import { acoes } from '../state/acoes.js';
 import * as seletores from '../state/seletores.js';
 import * as enums from '../domain/enums.js';
 import { TRANSICOES, podeTransicionar } from '../domain/maquinaEstados.js';
+import { analisarTexto } from './analise.js';
 import * as derivados from './derivados.js';
 import * as score from './score.js';
 import * as recomendacao from './recomendacao.js';
@@ -22,6 +23,7 @@ export function instalarConsole({ getState, dispatch }, alvo = globalThis) {
     enums,
     TRANSICOES,
     podeTransicionar,
+    analisarTexto,
     lib: { ...derivados, ...score, ...recomendacao, ...datas },
     editais: (hoje) => seletores.listarEditais(getState(), hoje),
     edital: (id, hoje) => seletores.obterEditalCompleto(getState(), id, hoje),
