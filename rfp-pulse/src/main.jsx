@@ -1,0 +1,16 @@
+import { StrictMode } from 'react';
+import { createRoot } from 'react-dom/client';
+import { App } from './App.jsx';
+import { AppProvider } from './state/AppContext.jsx';
+import { instalarConsole } from './lib/console.js';
+import './index.css';
+
+if (import.meta.env.DEV) instalarConsole();
+
+createRoot(document.getElementById('root')).render(
+  <StrictMode>
+    <AppProvider>
+      <App />
+    </AppProvider>
+  </StrictMode>,
+);
