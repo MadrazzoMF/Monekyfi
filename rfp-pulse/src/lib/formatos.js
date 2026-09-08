@@ -97,3 +97,15 @@ export const Rotulos = Object.freeze({
 export function rotulo(grupo, valor) {
   return Rotulos[grupo]?.[valor] ?? valor ?? '—';
 }
+
+/** R$ 102.680.000 -> "R$ 102,7 mi". Para KPIs. */
+export function formatarMoedaCompacta(centavos) {
+  if (!Number.isFinite(centavos)) return '—';
+  const v = centavos / 100;
+  const abs = Math.abs(v);
+  const fmt = (n, suf) => `R$ ${n.toLocaleString('pt-BR', { maximumFractionDigits: 1 })} ${suf}`;
+  if (abs >= 1e9) return fmt(v / 1e9, 'bi');
+  if (abs >= 1e6) return fmt(v / 1e6, 'mi');
+  if (abs >= 1e3) return fmt(v / 1e3, 'mil');
+  return formatarMoeda(centavos);
+}

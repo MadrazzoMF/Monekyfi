@@ -1,47 +1,39 @@
 /** @type {import('tailwindcss').Config} */
+const v = (nome) => `rgb(var(--${nome}) / <alpha-value>)`;
+
 export default {
   content: ['./index.html', './src/**/*.{js,jsx}'],
-  darkMode: 'media',
+  darkMode: ['selector', '[data-theme="dark"]'],
   theme: {
     extend: {
       colors: {
-        brand: {
-          50: '#eef4ff',
-          100: '#dbe6fe',
-          200: '#bfd3fe',
-          300: '#93b4fd',
-          400: '#608bfa',
-          500: '#3b66f5',
-          600: '#2547ea',
-          700: '#1d36d7',
-          800: '#1e2eae',
-          900: '#1e2c89',
-        },
-        ink: {
-          DEFAULT: 'rgb(var(--ink) / <alpha-value>)',
-          muted: 'rgb(var(--ink-muted) / <alpha-value>)',
-          faint: 'rgb(var(--ink-faint) / <alpha-value>)',
-        },
-        surface: {
-          DEFAULT: 'rgb(var(--surface) / <alpha-value>)',
-          raised: 'rgb(var(--surface-raised) / <alpha-value>)',
-          sunken: 'rgb(var(--surface-sunken) / <alpha-value>)',
-        },
-        line: 'rgb(var(--line) / <alpha-value>)',
-        go: { DEFAULT: '#15803d', soft: '#dcfce7', ink: '#14532d' },
-        nogo: { DEFAULT: '#b91c1c', soft: '#fee2e2', ink: '#7f1d1d' },
-        cond: { DEFAULT: '#b45309', soft: '#fef3c7', ink: '#78350f' },
-        indef: { DEFAULT: '#475569', soft: '#e2e8f0', ink: '#1e293b' },
+        bg: v('bg'),
+        surface: v('surface'),
+        raised: v('raised'),
+        overlay: v('overlay'),
+        line: { DEFAULT: v('line'), strong: v('line-strong') },
+        ink: { DEFAULT: v('ink'), muted: v('ink-muted'), faint: v('ink-faint'), inverse: v('ink-inverse') },
+        accent: { DEFAULT: v('accent'), strong: v('accent-strong'), soft: v('accent-soft') },
+        go: v('go'),
+        nogo: v('nogo'),
+        cond: v('cond'),
+        info: v('info'),
       },
       fontFamily: {
         sans: ['Inter', 'ui-sans-serif', 'system-ui', 'Segoe UI', 'Roboto', 'sans-serif'],
-        mono: ['ui-monospace', 'SFMono-Regular', 'Menlo', 'monospace'],
+        mono: ['JetBrains Mono', 'ui-monospace', 'SFMono-Regular', 'Menlo', 'monospace'],
       },
       boxShadow: {
-        card: '0 1px 2px rgb(15 23 42 / 0.06), 0 1px 3px rgb(15 23 42 / 0.1)',
-        pop: '0 10px 30px -10px rgb(15 23 42 / 0.25)',
+        card: '0 1px 0 0 rgb(var(--line) / 1) inset, 0 8px 24px -12px rgb(0 0 0 / 0.45)',
+        pop: '0 12px 40px -12px rgb(0 0 0 / 0.6)',
+        glow: '0 0 0 1px rgb(var(--accent) / 0.4), 0 8px 24px -8px rgb(var(--accent) / 0.5)',
       },
-      borderRadius: { xl2: '1rem' },
+      borderRadius: { xl2: '14px', xl3: '18px' },
+      keyframes: {
+        entrar: { from: { opacity: 0, transform: 'translateY(6px)' }, to: { opacity: 1, transform: 'translateY(0)' } },
+        toast: { from: { opacity: 0, transform: 'translateY(12px) scale(0.98)' }, to: { opacity: 1, transform: 'translateY(0) scale(1)' } },
+      },
+      animation: { entrar: 'entrar .25s ease-out both', toast: 'toast .2s ease-out both' },
     },
   },
   plugins: [],
