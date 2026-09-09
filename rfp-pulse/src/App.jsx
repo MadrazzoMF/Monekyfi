@@ -5,7 +5,9 @@ import { NovoEdital } from './pages/NovoEdital.jsx';
 import { DetalheEdital } from './pages/DetalheEdital.jsx';
 
 // Aberto direto do disco (file://) não há servidor para rotas limpas: usa hash.
-const Router = typeof window !== 'undefined' && window.location.protocol === 'file:' ? HashRouter : BrowserRouter;
+const usarHash =
+  import.meta.env?.VITE_ROUTER === 'hash' || (typeof window !== 'undefined' && window.location.protocol === 'file:');
+const Router = usarHash ? HashRouter : BrowserRouter;
 
 export function App() {
   return (
