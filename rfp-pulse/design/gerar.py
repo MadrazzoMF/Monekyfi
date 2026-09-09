@@ -78,7 +78,7 @@ class Component extends DCLogic {{
 def badge(txt, tom='neutral', dot=False):
     cores = {'neutral': (T['raised'], T['line'], T['muted']), 'go': ('rgba(52,211,153,.10)', 'rgba(52,211,153,.25)', T['go']),
              'nogo': ('rgba(251,113,133,.10)', 'rgba(251,113,133,.25)', T['nogo']), 'cond': ('rgba(251,191,36,.10)', 'rgba(251,191,36,.25)', T['cond']),
-             'info': ('rgba(96,165,250,.10)', 'rgba(96,165,250,.25)', T['info']), 'accent': ('rgba(129,140,248,.10)', 'rgba(129,140,248,.25)', T['accent']),
+             'info': ('rgba(96,165,250,.10)', 'rgba(96,165,250,.25)', T['info']), 'accent': ('rgba(129,140,248,.10)', 'rgba(129,140,248,.25)', '{{accent}}'),
              'outline': ('transparent', T['line'], T['muted'])}
     bg, bd, fg = cores[tom]
     peso = 500 if tom == 'outline' else 600
@@ -90,7 +90,7 @@ def btn(txt, tipo='primary', icone=None, sm=False):
     pad = '6px 10px' if sm else '8px 14px'; fs = '12px' if sm else '14px'
     base = f'display: inline-flex; align-items: center; justify-content: center; gap: 8px; border-radius: 8px; padding: {pad}; font-size: {fs}; font-weight: 500; white-space: nowrap;'
     if tipo == 'primary':
-        st = f'{base} color: #fff; border: 1px solid transparent; background: linear-gradient(180deg, {{{{accent}}}}, {T["accent2"]}); box-shadow: 0 1px 0 0 rgba(255,255,255,.15) inset, 0 6px 16px -6px rgba(129,140,248,.6);'
+        st = f'{base} color: #fff; border: 1px solid transparent; background: linear-gradient(180deg, {{{{accent}}}}, {T["accent2"]}); box-shadow: 0 1px 0 0 rgba(255,255,255,.15) inset, 0 6px 16px -6px rgba(0,0,0,.55);'
     elif tipo == 'secondary':
         st = f'{base} color: {T["ink"]}; border: 1px solid {T["line"]}; background: {T["raised"]};'
     elif tipo == 'ghost':
@@ -110,8 +110,8 @@ def input_(placeholder, w='100%', icone=None, extra=''):
 
 def select(txt, w='auto', sm=False):
     h = '30px' if sm else '36px'; fs = '12px' if sm else '14px'
-    return (f'<div style="height: {h}; width: {w}; box-sizing: border-box; border-radius: 8px; border: 1px solid {T["line"]}; background: {T["raised"]}; color: {T["ink"]}; font-size: {fs}; '
-            f'padding: 0 10px 0 12px; display: inline-flex; align-items: center; justify-content: space-between; gap: 10px; white-space: nowrap;">{txt}{ic("baixo", 12, T["faint"])}</div>')
+    return (f'<span style="height: {h}; width: {w}; box-sizing: border-box; border-radius: 8px; border: 1px solid {T["line"]}; background: {T["raised"]}; color: {T["ink"]}; font-size: {fs}; '
+            f'padding: 0 10px 0 12px; display: inline-flex; align-items: center; justify-content: space-between; gap: 10px; white-space: nowrap;">{txt}{ic("baixo", 12, T["faint"])}</span>')
 
 def label(txt):
     return f'<span style="font-size: 11px; font-weight: 500; text-transform: uppercase; letter-spacing: .06em; color: {T["faint"]};">{txt}</span>'
@@ -249,10 +249,10 @@ def dashboard():
     </header>
     <div style="display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 12px;">{kpis}</div>
     {filtros}
-    <div style="display: flex; align-items: center; justify-content: space-between; font-size: 12px; color: {T['muted']};"><span>Mostrando <strong style="color: {T['ink']};">10</strong> de 10 editais</span><span>Clique em uma linha para abrir</span></div>
+    <div style="display: flex; align-items: center; justify-content: space-between; font-size: 12px; color: {T['muted']};"><span>Mostrando <strong style="color: {T['ink']};">7</strong> de 10 editais</span><span>Clique em uma linha para abrir</span></div>
     {tabela}
   </main>"""
-    return head(1440, 1120) + sidebar('dash') + main + tail()
+    return head(1440, 1220) + sidebar('dash') + main + tail()
 
 # ---------- Importar ----------
 def importar():
@@ -310,7 +310,7 @@ A visita técnica é obrigatória e deverá ser agendada com a Secretaria de Obr
             + campo('Valor estimado (R$)', val('4.750.000,00'), 'R$ 4.750.000,00')
             + f'<div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px;">{campo("Abertura das propostas", val("15/11/2026"))}{campo("Limite de envio", val("13/11/2026"))}</div>'
             + campo('Responsável', select('Ana Ribeiro', '100%'))
-            + campo('Tags (separadas por vírgula)', val('ti, municipal, urgente', T['faint']))
+            + campo('Tags (separadas por vírgula)', val('iluminacao, municipal, led', T['faint']))
             + '</div>', extra='grid-column: span 2;')}
       {card(passo('3', 'Sugestões da análise', badge('10 selecionadas', 'accent'))
             + f'<div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 24px;">{sug("Critérios", "escudo", crit, "4/4")}{sug("Riscos", "alerta", risc, "2/2")}{sug("Checklist", "lista", chk, "4/4")}</div>',
@@ -344,12 +344,12 @@ def detalhe():
         bd = 'rgba(251,113,133,.4)' if elim else T['line']; bg = 'rgba(251,113,133,.05)' if elim else 'rgba(19,23,37,.6)'
         av = (f'<div style="display: flex; align-items: flex-start; gap: 10px; border-radius: 8px; border: 1px solid rgba(251,113,133,.3); background: rgba(251,113,133,.10); padding: 6px 12px; font-size: 12px; color: {T["nogo"]};">{ic("alerta", 14, T["nogo"])}Critério eliminatório: força NO-GO independentemente do score.</div>' if elim else '')
         return f"""<div style="border-radius: 12px; border: 1px solid {bd}; background: {bg}; padding: 14px; display: flex; flex-direction: column; gap: 12px;">
-            <div style="display: flex; align-items: center; gap: 6px;">{badge(cat, 'outline')}{badge('obrigatório', 'outline')}{badge(f'peso {peso}', 'outline')}<span style="flex: 1;"></span><a href="#" style="display: inline-flex; align-items: center; gap: 4px; font-size: 12px; font-weight: 500;">{ic('olho', 13)} no texto</a>{ic('baixo', 14, T['muted'])}</div>
+            <div style="display: flex; align-items: center; gap: 6px;">{badge(cat, 'outline')}{badge('obrigatório', 'outline')}{badge(f'peso {peso}', 'outline')}<a href="#" style="margin-left: auto; display: inline-flex; align-items: center; gap: 4px; font-size: 12px; font-weight: 500;">{ic('olho', 13)} no texto</a>{ic('baixo', 14, T['muted'])}</div>
             <p style="margin: 0; font-size: 14px; font-weight: 500; line-height: 1.4;">{desc}</p>{av}
             <div style="display: flex; align-items: center; gap: 12px;">{seg(['Atende', 'Parcial', 'Não atende', 'N/A'], sit, tom)}
               <span style="display: inline-flex; align-items: center; gap: 6px; font-size: 12px; color: {T['muted']};">Peso {select(str(peso), 'auto', sm=True)}</span>
               <span style="display: inline-flex; align-items: center; gap: 6px; font-size: 12px; color: {T['muted']};"><span style="width: 16px; height: 16px; border-radius: 4px; background: {T['accent2']}; display: grid; place-items: center;">{ic('check', 12, '#fff', 2.5)}</span>Obrigatório</span>
-              <span style="flex: 1;"></span>{ic('lixo', 14, T['muted'])}</div>
+              <span style="margin-left: auto; display: inline-flex;">{ic('lixo', 14, T['muted'])}</span></div>
           </div>"""
     texto = ('Pregão eletrônico para contratação de fábrica de software com métrica em pontos de função, para evolução e sustentação de sistemas do SUS. '
              f'Exige <mark style="background: rgba(129,140,248,.2); color: {T["ink"]}; border-radius: 3px; padding: 0 2px;">atestado de 10.000 PF entregues nos últimos 3 anos</mark> e '
@@ -367,9 +367,9 @@ def detalhe():
         </div>
         <div style="display: flex; align-items: center; gap: 20px; border-radius: 12px; border: 1px solid {T['line']}; background: rgba(19,23,37,.6); padding: 12px 20px; flex-shrink: 0;">{anel}<div style="display: flex; flex-direction: column; gap: 6px;">{label('Recomendação')}{pill}</div></div>
       </div>
-      <dl style="margin: 0; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 16px;">
+      <div style="display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 16px;">
         {fato('relogio', 'Prazo de envio', f'08/10/2026 · <span class="tab" style="font-weight: 500;">30 d</span>')}{fato('calendario', 'Abertura', '10/10/2026')}{fato('moeda', 'Valor estimado', '<span class="tab">R$ 41.000.000,00</span>')}{fato('importar', 'Importado em', '30/07/2026')}{fato('usuario', 'Responsável', select('Bruno Tavares', 'auto', sm=True))}
-      </dl></div>''')}
+      </div></div>''')}
     <div style="display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 20px; align-items: start;">
       {card(f'''<div style="display: flex; flex-direction: column; gap: 12px;">
         <div style="display: flex; align-items: baseline; justify-content: space-between;"><h3 style="margin: 0; font-size: 16px; font-weight: 600;">Texto do edital</h3><span style="font-size: 12px; color: {T['faint']};">clique num trecho marcado</span></div>
@@ -377,8 +377,8 @@ def detalhe():
         <div style="display: flex; gap: 12px; font-size: 11px; color: {T['faint']};"><span style="display: inline-flex; align-items: center; gap: 6px;"><span style="width: 10px; height: 10px; border-radius: 2px; background: rgba(129,140,248,.4);"></span>critério</span><span style="display: inline-flex; align-items: center; gap: 6px;"><span style="width: 10px; height: 10px; border-radius: 2px; background: rgba(251,191,36,.4);"></span>risco</span></div>
       </div>''', extra='grid-column: span 2;')}
       {card(f'''<div style="display: flex; flex-direction: column; gap: 16px;">
-        <div style="display: flex; gap: 4px; border-bottom: 1px solid {T['line']};">{tab('Critérios', 'escudo', 6, True)}{tab('Checklist', 'lista', 3)}{tab('Riscos', 'alerta', 2)}{tab('Aprovação', 'fluxo', 3)}</div>
-        <div style="display: flex; align-items: baseline; justify-content: space-between;"><h3 style="margin: 0; font-size: 16px; font-weight: 600;">Critérios de elegibilidade</h3><span style="font-size: 12px; color: {T['muted']};">6/6 avaliados</span></div>
+        <div style="display: flex; gap: 4px; border-bottom: 1px solid {T['line']};">{tab('Critérios', 'escudo', 4, True)}{tab('Checklist', 'lista', 3)}{tab('Riscos', 'alerta', 2)}{tab('Aprovação', 'fluxo', 3)}</div>
+        <div style="display: flex; align-items: baseline; justify-content: space-between;"><h3 style="margin: 0; font-size: 16px; font-weight: 600;">Critérios de elegibilidade</h3><span style="font-size: 12px; color: {T['muted']};">4/4 avaliados</span></div>
         <div style="display: flex; flex-direction: column; gap: 10px;">
           {crit('Técnica', 5, 'Atestado de 10.000 PF em 3 anos', 'Atende', 'go')}
           {crit('Técnica', 5, 'CMMI nível 3 ou MPS.BR nível C', 'Atende', 'go')}
@@ -401,8 +401,9 @@ def componentes():
     def sec(t, inner):
         return f'<div style="display: flex; flex-direction: column; gap: 12px;"><h3 style="margin: 0; font-size: 14px; font-weight: 600; color: {T["muted"]}; text-transform: uppercase; letter-spacing: .08em;">{t}</h3>{inner}</div>'
     def sw(nome, cor):
-        return f'<div style="display: flex; flex-direction: column; gap: 6px;"><div style="height: 44px; border-radius: 8px; background: {cor}; border: 1px solid {T["line2"]};"></div><span class="mono" style="font-size: 11px; color: {T["muted"]};">{nome}<br>{cor}</span></div>'
-    cores = ''.join(sw(k, v) for k, v in [('bg', T['bg']), ('surface', T['surface']), ('raised', T['raised']), ('overlay', T['overlay']), ('line', T['line']), ('line-strong', T['line2']), ('ink', T['ink']), ('ink-muted', T['muted']), ('ink-faint', T['faint']), ('accent', T['accent']), ('accent-strong', T['accent2']), ('go', T['go']), ('nogo', T['nogo']), ('cond', T['cond']), ('info', T['info'])])
+        rot = nome if cor.startswith('{{') else f'{nome}<br>{cor}'
+        return f'<div style="display: flex; flex-direction: column; gap: 6px;"><div style="height: 44px; border-radius: 8px; background: {cor}; border: 1px solid {T["line2"]};"></div><span class="mono" style="font-size: 11px; color: {T["muted"]};">{rot}</span></div>'
+    cores = ''.join(sw(k, v) for k, v in [('bg', T['bg']), ('surface', T['surface']), ('raised', T['raised']), ('overlay', T['overlay']), ('line', T['line']), ('line-strong', T['line2']), ('ink', T['ink']), ('ink-muted', T['muted']), ('ink-faint', T['faint']), ('accent', '{{accent}}'), ('accent-strong', T['accent2']), ('go', T['go']), ('nogo', T['nogo']), ('cond', T['cond']), ('info', T['info'])])
     inner = f"""
   <div style="width: 100%; padding: 40px; box-sizing: border-box; display: flex; flex-direction: column; gap: 32px;">
     <div style="display: flex; flex-direction: column; gap: 4px;"><h2 style="margin: 0; font-size: 22px; font-weight: 600; letter-spacing: -.02em;">Componentes</h2><p style="margin: 0; font-size: 14px; color: {T['muted']};">Tokens e peças do RFP-Pulse, lidos de tailwind.config.js e index.css. Inter 14px, raio 14px em cards, 8px em controles, 6px em badges.</p></div>
@@ -423,7 +424,7 @@ open('Componentes.dc.html', 'w').write(componentes())
 canvas = {
   "pages": [{"id": "page-1", "name": "Telas"}, {"id": "page-2", "name": "Componentes"}],
   "artboards": [
-    {"file": "Main.dc.html", "title": "Dashboard", "x": 0, "y": 0, "w": 1440, "h": 1120, "page": "page-1"},
+    {"file": "Main.dc.html", "title": "Dashboard", "x": 0, "y": 0, "w": 1440, "h": 1220, "page": "page-1"},
     {"file": "Importar.dc.html", "title": "Importar edital", "x": 1560, "y": 0, "w": 1440, "h": 1560, "page": "page-1"},
     {"file": "Detalhe.dc.html", "title": "Detalhe do edital", "x": 3120, "y": 0, "w": 1440, "h": 1240, "page": "page-1"},
     {"file": "Componentes.dc.html", "title": "Componentes e tokens", "x": 0, "y": 0, "w": 1200, "h": 900, "page": "page-2"}
